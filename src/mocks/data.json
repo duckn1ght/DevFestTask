@@ -1,0 +1,94 @@
+{
+  "colors": ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8", "#82ca9d"],
+  "periods": {
+    "week": {
+      "stats": {
+        "revenue": 13100000,
+        "taxes": 1500000,
+        "salaries": 4500000
+      },
+      "revenueChart": [
+        { "date": "Пн", "value": 1200000 },
+        { "date": "Вт", "value": 2100000 },
+        { "date": "Ср", "value": 800000 },
+        { "date": "Чт", "value": 1600000 },
+        { "date": "Пт", "value": 2500000 },
+        { "date": "Сб", "value": 1900000 },
+        { "date": "Вс", "value": 3000000 }
+      ],
+      "taxData": [
+        { "name": "ИПН", "value": 500000 },
+        { "name": "ОПВ", "value": 550000 },
+        { "name": "СО", "value": 250000 },
+        { "name": "ОСМС", "value": 200000 }
+      ],
+      "salaryData": [
+        { "name": "Разработчики", "value": 2500000 },
+        { "name": "Менеджеры", "value": 1200000 },
+        { "name": "Дизайнеры", "value": 600000 },
+        { "name": "HR", "value": 200000 }
+      ]
+    },
+    "month": {
+      "stats": {
+        "revenue": 45000000,
+        "taxes": 5200000,
+        "salaries": 18500000
+      },
+      "revenueChart": [
+        { "date": "01.12", "value": 1200000 },
+        { "date": "05.12", "value": 2500000 },
+        { "date": "10.12", "value": 1800000 },
+        { "date": "15.12", "value": 3200000 },
+        { "date": "20.12", "value": 2100000 },
+        { "date": "25.12", "value": 4500000 },
+        { "date": "30.12", "value": 3800000 }
+      ],
+      "taxData": [
+        { "name": "ИПН", "value": 1800000 },
+        { "name": "ОПВ", "value": 1850000 },
+        { "name": "СО", "value": 950000 },
+        { "name": "ОСМС", "value": 600000 }
+      ],
+      "salaryData": [
+        { "name": "Разработчики", "value": 10500000 },
+        { "name": "Менеджеры", "value": 4500000 },
+        { "name": "Дизайнеры", "value": 2500000 },
+        { "name": "HR", "value": 1000000 }
+      ]
+    },
+    "year": {
+      "stats": {
+        "revenue": 540000000,
+        "taxes": 62400000,
+        "salaries": 222000000
+      },
+      "revenueChart": [
+        { "date": "Янв", "value": 35000000 },
+        { "date": "Фев", "value": 38000000 },
+        { "date": "Мар", "value": 42000000 },
+        { "date": "Апр", "value": 40000000 },
+        { "date": "Май", "value": 45000000 },
+        { "date": "Июн", "value": 48000000 },
+        { "date": "Июл", "value": 46000000 },
+        { "date": "Авг", "value": 49000000 },
+        { "date": "Сен", "value": 52000000 },
+        { "date": "Окт", "value": 55000000 },
+        { "date": "Ноя", "value": 58000000 },
+        { "date": "Дек", "value": 62000000 }
+      ],
+      "taxData": [
+        { "name": "ИПН", "value": 21600000 },
+        { "name": "ОПВ", "value": 22200000 },
+        { "name": "СО", "value": 11400000 },
+        { "name": "ОСМС", "value": 7200000 }
+      ],
+      "salaryData": [
+        { "name": "Разработчики", "value": 126000000 },
+        { "name": "Менеджеры", "value": 54000000 },
+        { "name": "Дизайнеры", "value": 30000000 },
+        { "name": "HR", "value": 12000000 }
+      ]
+    }
+  }
+}
