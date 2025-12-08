@@ -2,12 +2,15 @@ import { GoogleGenAI } from '@google/genai';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import * as XLSX from 'xlsx';
 import type { Express } from 'express';
+import { RagService } from '../rag/rag.service';
 
 @Injectable()
 export class GeminiService {
   genai = new GoogleGenAI({
     apiKey: process.env.GEMINI_API_KEY,
   });
+
+  constructor(private readonly ragService: RagService) {}
   async sendPrompt(prompt: string) {
     const response = await this.genai.models.generateContent({
       model: 'gemini-2.5-flash',
@@ -16,7 +19,7 @@ export class GeminiService {
     return response;
   }
 
-  async readDoc(file: Express.Multer.File) {
+  async readDoc(file: Express.Multer.File, options?: { ingest?: boolean; sourceId?: string }) {
     const allowedMimeTypes = [
       'application/pdf',
       'text/plain',
@@ -63,6 +66,15 @@ export class GeminiService {
       });
 
       const text = this.extractText(response);
+
+      if (options?.ingest) {
+        await this.ragService.ingestText(text, options.sourceId ?? file.originalname, {
+          filename: file.originalname,
+          mimeType: file.mimetype,
+          from: 'gemini-excel',
+        });
+      }
+
       return {
         raw: text,
         parsed: this.parseGeminiJson(text),
@@ -100,6 +112,15 @@ export class GeminiService {
       ],
     });
     const text = this.extractText(response);
+
+    if (options?.ingest) {
+      await this.ragService.ingestText(text, options.sourceId ?? file.originalname, {
+        filename: file.originalname,
+        mimeType: file.mimetype,
+        from: 'gemini-doc',
+      });
+    }
+
     return {
       raw: text,
       parsed: this.parseGeminiJson(text),

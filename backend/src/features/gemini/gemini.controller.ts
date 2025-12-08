@@ -1,5 +1,5 @@
-import { BadRequestException, Body, Controller, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
-import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { BadRequestException, Body, Controller, Post, UploadedFile, UseInterceptors, Query } from '@nestjs/common';
+import { ApiBody, ApiConsumes, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Express } from 'express';
 import { GeminiService } from './gemini.service';
@@ -24,15 +24,26 @@ export class GeminiController {
       type: 'object',
       properties: {
         file: { type: 'string', format: 'binary' },
+        ingest: { type: 'boolean', default: false },
+        sourceId: { type: 'string', nullable: true },
       },
     },
   })
-  async readDoc(@UploadedFile() file: Express.Multer.File) {
+  async readDoc(
+    @UploadedFile() file: Express.Multer.File,
+    @Body('ingest') ingest?: string,
+    @Body('sourceId') sourceId?: string,
+  ) {
     if (!file) {
       throw new BadRequestException('File is required');
     }
 
-    const response = await this.geminiService.readDoc(file);
+    const ingestFlag = ingest === 'true' || ingest === '1' || ingest === 'yes';
+
+    const response = await this.geminiService.readDoc(file, {
+      ingest: ingestFlag,
+      sourceId,
+    });
     return response;
   }
 }

@@ -10,6 +10,7 @@ import { UserModule } from './features/user/user.module';
 import { join } from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { AuthModule } from './features/auth/auth.module';
+import { RagModule } from './features/rag/rag.module';
 import { ReportsModule } from './features/reports/reports.module';
 import { GeminiModule } from './features/gemini/gemini.module';
 
@@ -30,6 +31,7 @@ import { GeminiModule } from './features/gemini/gemini.module';
     RedisModule,
     UserModule,
     AuthModule,
+    RagModule,
     ReportsModule,
     GeminiModule,
   ],
