@@ -1,0 +1,36 @@
+@startuml RAG_Architecture_V2
+!theme spacelab
+
+' Объявление внешних API
+cloud "Gemini Embeddings API" as GeminiEmbed
+cloud "Gemini GenerateContent API" as GeminiGen
+
+' Модуль Приложения (просто компонент, так как он не содержит подмодулей)
+component "AppModule" as App
+
+' Группа RAG-сервисов
+package "RagModule" {
+    component "RagService: orchestration" as RagSvc
+    component "EmbeddingService: chunking + embeddings" as EmbedSvc
+    database "Chunk Repo (Postgres)" as ChunkRepo
+}
+
+' Группа Gemini-сервисов
+package "GeminiModule" {
+    component "GeminiService: чтение, парсинг" as GemSvc
+}
+
+' Описание связей
+App --> RagSvc
+App --> GemSvc
+
+GemSvc -[hidden]right-> RagSvc : "1. Ingest text"
+
+RagSvc --> EmbedSvc
+RagSvc --> ChunkRepo
+
+EmbedSvc --> GeminiEmbed : "2. Embed text"
+
+RagSvc --> GeminiGen : "3. LLM answer"
+
+@enduml
