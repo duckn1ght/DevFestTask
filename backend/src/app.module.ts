@@ -11,6 +11,7 @@ import { join } from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { AuthModule } from './features/auth/auth.module';
 import { ReportsModule } from './features/reports/reports.module';
+import { GeminiModule } from './features/gemini/gemini.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { ReportsModule } from './features/reports/reports.module';
     UserModule,
     AuthModule,
     ReportsModule,
+    GeminiModule,
   ],
   controllers: [AppController],
 })
