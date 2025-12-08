@@ -4,7 +4,7 @@ import { Report } from './report.entity';
 
 @Entity({ name: 'salaries' })
 export class Salary extends AbstractEntity<Salary> {
-  @ManyToOne(() => Report, (report) => report.salaries)
+  @ManyToOne(() => Report, (report) => report.salaries, { onDelete: 'CASCADE' })
   report: Report;
 
   @Column()

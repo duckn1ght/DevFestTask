@@ -20,11 +20,11 @@ export class Report extends AbstractEntity<Report> {
   totalConsumption: number;
 
   /** Выплаты зарплат. */
-  @OneToMany(() => Salary, (salary) => salary.report)
+  @OneToMany(() => Salary, (salary) => salary.report, { cascade: true })
   salaries: Salary[];
 
   /** Выплаты налогов */
-  @OneToMany(() => Tax, (tax) => tax.report)
+  @OneToMany(() => Tax, (tax) => tax.report, { cascade: true })
   taxes: Tax[];
 
   @CreateDateColumn()
