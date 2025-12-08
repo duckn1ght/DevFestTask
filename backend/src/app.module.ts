@@ -10,6 +10,7 @@ import { UserModule } from './features/user/user.module';
 import { join } from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { AuthModule } from './features/auth/auth.module';
+import { ReportsModule } from './features/reports/reports.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { AuthModule } from './features/auth/auth.module';
     RedisModule,
     UserModule,
     AuthModule,
+    ReportsModule,
   ],
   controllers: [AppController],
 })
