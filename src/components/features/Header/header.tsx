@@ -51,7 +51,7 @@ const Header = () => {
       {/* Desktop Sidebar */}
       <div className="hidden lg:flex h-screen w-[300px] border-r bg-card flex-col fixed left-0 top-0 z-50">
         <div className="p-6 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-primary">FinAI</h1>
+          <h1 className="text-2xl font-bold text-primary">AccountingAI</h1>
           <SwitchTheme />
         </div>
         <NavLinks />
