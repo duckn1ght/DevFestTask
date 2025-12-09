@@ -1,8 +1,5 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip } from 'recharts'
-import { ArrowRight } from 'lucide-react'
-import { Link } from 'react-router-dom'
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import mockData from '@/mocks/data.json'
 
 export const ChartCard = ({ title, data }: any) => {
@@ -14,7 +11,7 @@ export const ChartCard = ({ title, data }: any) => {
         <CardTitle>{title}</CardTitle>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col md:flex-row items-center gap-4">
-        <div className="w-full md:w-1/2 h-[300px]">
+        <div className="w-full md:w-1/2 h-[300px] min-h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -51,13 +48,6 @@ export const ChartCard = ({ title, data }: any) => {
           })}
         </div>
       </CardContent>
-      <CardFooter>
-        <Button className="w-full" asChild>
-          <Link to="#">
-            Подробнее <ArrowRight className="ml-2 h-4 w-4" />
-          </Link>
-        </Button>
-      </CardFooter>
     </Card>
   )
 }

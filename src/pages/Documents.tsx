@@ -1,10 +1,10 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Eye, FileText, Receipt, TrendingUp, Building, Landmark, Search, Filter, ArrowUpDown } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import mockDocuments from '@/mocks/documents.json'
+import { reportsApi } from '@/api/Reports'
 
 const getFileIcon = (type: string) => {
   switch (type) {
@@ -16,31 +16,57 @@ const getFileIcon = (type: string) => {
   }
 }
 
-const parseDate = (dateStr: string) => {
-  const [day, month, year] = dateStr.split('.').map(Number)
-  return new Date(year, month - 1, day).getTime()
-}
+// const parseDate = (dateStr: string) => {
+//   // Handle both DD.MM.YYYY and ISO strings
+//   if (dateStr.includes('T')) {
+//     return new Date(dateStr).getTime();
+//   }
+//   const [day, month, year] = dateStr.split('.').map(Number)
+//   return new Date(year, month - 1, day).getTime()
+// }
 
 const Documents = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedType, setSelectedType] = useState('all')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+  const [documents, setDocuments] = useState<any[]>([])
 
-  const documentTypes = ['all', ...new Set(mockDocuments.map(d => d.type))]
+  useEffect(() => {
+    const fetchDocuments = async () => {
+      try {
+        const data = await reportsApi.getAll();
+        const mappedDocs = data.map((report: any) => ({
+          id: report.id,
+          name: report.filename || `Report ${report.id.substring(0, 8)}`,
+          type: report.type || 'General',
+          date: new Date(report.createdAt).toLocaleDateString('ru-RU'),
+          revenue: report.totalIncome - report.totalConsumption,
+          rawDate: report.createdAt
+        }));
+        setDocuments(mappedDocs);
+      } catch (error) {
+        console.error("Failed to fetch documents:", error);
+      }
+    };
+
+    fetchDocuments();
+  }, []);
+
+  const documentTypes = ['all', ...new Set(documents.map(d => d.type))]
 
   const filteredAndSortedDocuments = useMemo(() => {
-    return mockDocuments
+    return documents
       .filter(doc => {
         const matchesSearch = doc.name.toLowerCase().includes(searchQuery.toLowerCase())
         const matchesType = selectedType === 'all' || doc.type === selectedType
         return matchesSearch && matchesType
       })
       .sort((a, b) => {
-        const dateA = parseDate(a.date)
-        const dateB = parseDate(b.date)
+        const dateA = new Date(a.rawDate).getTime()
+        const dateB = new Date(b.rawDate).getTime()
         return sortOrder === 'asc' ? dateA - dateB : dateB - dateA
       })
-  }, [searchQuery, selectedType, sortOrder])
+  }, [searchQuery, selectedType, sortOrder, documents])
 
   const toggleSort = () => {
     setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { useAuth } from '@/context/AuthContext'
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -12,18 +13,29 @@ const Register = () => {
     email: '',
     password: ''
   })
+  const [error, setError] = useState('')
   const navigate = useNavigate()
+  const { register } = useAuth()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Implement actual registration logic
-    console.log('Register:', formData)
-    navigate('/')
+    setError('')
+    try {
+      await register({
+        email: formData.email,
+        password: formData.password,
+        orgName: formData.business_name,
+        fullname: formData.username
+      })
+      navigate('/')
+    } catch (err: any) {
+      setError(err.message || 'Ошибка регистрации')
+    }
   }
 
   return (
@@ -37,6 +49,7 @@ const Register = () => {
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
+            {error && <div className="text-red-500 text-sm">{error}</div>}
             <div className="space-y-2">
               <Label htmlFor="username">ФИО</Label>
               <Input
