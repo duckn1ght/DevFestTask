@@ -58,6 +58,11 @@ export class GeminiService {
       let totalIncome = 0;
       let totalConsumption = 0;
 
+      // Step 1: Determine Document Context
+      const sampleRows = rows.slice(0, 5);
+      const docContext = await this.determineDocumentContext(sampleRows);
+      console.log('Detected Document Context:', docContext);
+
       for (const row of rows) {
         const rowJson = JSON.stringify(row);
         const response = await this.genai.models.generateContent({
@@ -66,7 +71,16 @@ export class GeminiService {
             {
               parts: [
                 {
-                  text: `Analyze the following JSON record (one row from an Excel file) and extract transaction details.
+                  text: `Context: This document is identified as a "${docContext}".
+              Analyze the following JSON record (one row from an Excel file) and extract transaction details based on this context.
+              
+              Rules based on Context:
+              - If Context is "REVENUE", treat amounts as 'income' unless explicitly stated as refund/return.
+              - If Context is "TAX", treat amounts as 'expense' and category as 'tax'.
+              - If Context is "SALARY", treat amounts as 'expense' and category as 'salary'.
+              - If Context is "EXPENSE", treat amounts as 'expense'.
+              
+              General Rules:
               If the record represents an expense, payment made, or money flowing OUT, it is an 'expense'.
               If the record represents income, revenue, or money flowing IN, it is an 'income'.
               Look for any date field in the record and extract it as 'date' in ISO 8601 format (YYYY-MM-DD).
@@ -100,6 +114,12 @@ export class GeminiService {
         const parsed = this.parseGeminiJson(text);
 
         if (parsed?.transaction) {
+          // Validate amount
+          if (typeof parsed.transaction.amount !== 'number' || isNaN(parsed.transaction.amount)) {
+            console.warn('Skipping transaction with invalid amount:', parsed.transaction);
+            continue;
+          }
+
           transactionsData.push(parsed.transaction);
           if (parsed.transaction.type === 'income') {
             totalIncome += parsed.transaction.amount;
@@ -134,14 +154,18 @@ export class GeminiService {
       }, userId);
 
       // Create Transactions linked to Report
-      const transactionDtos = transactionsData.map((t) => ({
-        ...t,
-        type: t.type === 'income' || t.type === 'expense' ? t.type : 'expense', // Fallback
-        reportId: report.id,
-        date: t.date ? new Date(t.date) : new Date(),
-      }));
+      const transactionDtos = transactionsData
+        .filter(t => typeof t.amount === 'number' && !isNaN(t.amount)) // Double check before saving
+        .map((t) => ({
+          ...t,
+          type: t.type === 'income' || t.type === 'expense' ? t.type : 'expense', // Fallback
+          reportId: report.id,
+          date: t.date ? new Date(t.date) : new Date(),
+        }));
 
-      await this.transactionsService.createMany(transactionDtos, userId);
+      if (transactionDtos.length > 0) {
+        await this.transactionsService.createMany(transactionDtos, userId);
+      }
 
       if (options?.ingest) {
         await this.ragService.ingestText(csv, userId, options.sourceId ?? file.originalname, {
@@ -171,7 +195,16 @@ export class GeminiService {
             },
             {
               text: `Analyze the document and provide data in JSON format.
-              Extract all financial transactions found in the document.
+              First, determine the overall type of the document (REVENUE, TAX, SALARY, EXPENSE, or MIXED).
+              
+              Then, extract all financial transactions found in the document.
+              
+              Rules based on Document Type:
+              - If "REVENUE", treat amounts as 'income'.
+              - If "TAX", treat amounts as 'expense' and category as 'tax'.
+              - If "SALARY", treat amounts as 'expense' and category as 'salary'.
+              
+              General Rules:
               If the transaction represents an expense, payment made, or money flowing OUT, it is an 'expense'.
               If the transaction represents income, revenue, or money flowing IN, it is an 'income'.
               
@@ -181,6 +214,7 @@ export class GeminiService {
 
               Output format:
               {
+                "documentType": "string",
                 "transactions": [
                   {
                     "date": "string (ISO 8601)",
@@ -216,6 +250,12 @@ export class GeminiService {
       const salariesData: any[] = [];
 
       for (const t of parsed.transactions) {
+        // Validate amount
+        if (typeof t.amount !== 'number' || isNaN(t.amount)) {
+          console.warn('Skipping transaction with invalid amount:', t);
+          continue;
+        }
+
         if (t.type === 'income') totalIncome += t.amount;
         else totalConsumption += t.amount;
 
@@ -243,14 +283,18 @@ export class GeminiService {
         salaries: salariesData,
       }, userId);
 
-      const transactionDtos = parsed.transactions.map((t: any) => ({
-        ...t,
-        type: t.type === 'income' || t.type === 'expense' ? t.type : 'expense', // Fallback to expense if type is missing/invalid
-        reportId: report.id,
-        date: t.date ? new Date(t.date) : new Date(),
-      }));
+      const transactionDtos = parsed.transactions
+        .filter((t: any) => typeof t.amount === 'number' && !isNaN(t.amount))
+        .map((t: any) => ({
+          ...t,
+          type: t.type === 'income' || t.type === 'expense' ? t.type : 'expense', // Fallback to expense if type is missing/invalid
+          reportId: report.id,
+          date: t.date ? new Date(t.date) : new Date(),
+        }));
 
-      await this.transactionsService.createMany(transactionDtos, userId);
+      if (transactionDtos.length > 0) {
+        await this.transactionsService.createMany(transactionDtos, userId);
+      }
     }
 
     return {
@@ -280,6 +324,44 @@ export class GeminiService {
     } catch (e) {
       // If parsing fails, return raw for debugging; caller can handle null/undefined.
       return null;
+    }
+  }
+
+  private async determineDocumentContext(sampleRows: any[]): Promise<string> {
+    try {
+      const response = await this.genai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: [
+          {
+            parts: [
+              {
+                text: `Analyze these first few rows of a spreadsheet to determine the document type.
+            Rows: ${JSON.stringify(sampleRows)}
+            
+            Possible types:
+            - "REVENUE": Sales reports, income statements, money coming in.
+            - "TAX": Tax payment records, government fees.
+            - "SALARY": Payroll, employee list with salaries.
+            - "EXPENSE": General expenses, bills, invoices.
+            - "MIXED": Bank statement with mixed transactions (both income and expense).
+            
+            Return ONLY the type string (e.g., "REVENUE"). Do not add markdown or explanations.`,
+              },
+            ],
+          },
+        ],
+      });
+      
+      const text = this.extractText(response).trim().replace(/['"`]/g, '');
+      // Fallback if model is chatty
+      if (text.includes('REVENUE')) return 'REVENUE';
+      if (text.includes('TAX')) return 'TAX';
+      if (text.includes('SALARY')) return 'SALARY';
+      if (text.includes('EXPENSE')) return 'EXPENSE';
+      return 'MIXED';
+    } catch (error) {
+      console.error('Failed to determine document context:', error);
+      return 'MIXED'; // Default to mixed if analysis fails
     }
   }
 }
