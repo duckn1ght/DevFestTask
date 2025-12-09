@@ -1,73 +1,104 @@
-# React + TypeScript + Vite
+# DevFest Hackathon Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Клиентская часть приложения для автоматизации финансового учета и аналитики с использованием AI (Gemini). Разработано в рамках хакатона DevFest.
 
-Currently, two official plugins are available:
+## 🚀 Технологический стек
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Core:** [React 19](https://react.dev/), [TypeScript](https://www.typescriptlang.org/), [Vite](https://vitejs.dev/)
+- **Styling:** [Tailwind CSS](https://tailwindcss.com/), [Tailwindcss-animate](https://github.com/jamiebuilds/tailwindcss-animate)
+- **UI Components:** [Shadcn UI](https://ui.shadcn.com/) (Radix UI primitives)
+- **Icons:** [Lucide React](https://lucide.dev/), [React Icons](https://react-icons.github.io/react-icons/)
+- **Charts:** [Recharts](https://recharts.org/)
+- **Routing:** [React Router DOM](https://reactrouter.com/)
+- **Animations:** [Framer Motion](https://www.framer.com/motion/)
 
-## React Compiler
+## 🛠 Установка и запуск
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Предварительные требования
+- Node.js (версия 18+ рекомендуется)
+- Yarn или npm
 
-## Expanding the ESLint configuration
+### Шаги для запуска
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+1. **Клонируйте репозиторий** (если еще не сделали):
+   ```bash
+   git clone <repository-url>
+   cd client
+   ```
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+2. **Установите зависимости:**
+   ```bash
+   yarn install
+   # или
+   npm install
+   ```
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+3. **Запустите режим разработки:**
+   ```bash
+   yarn dev
+   # или
+   npm run dev
+   ```
+   Приложение будет доступно по адресу: `http://localhost:5173`
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 📜 Скрипты
+
+- `yarn dev` - Запуск локального сервера разработки.
+- `yarn build` - Сборка проекта для продакшена (TypeScript компиляция + Vite build).
+- `yarn lint` - Проверка кода линтером (ESLint).
+- `yarn preview` - Предпросмотр собранного приложения.
+
+## 📂 Структура проекта
+
+```
+client/
+├── public/             # Статические файлы
+├── src/
+│   ├── api/            # API клиенты (Auth, Employees, Reports, Rag, Transactions)
+│   ├── assets/         # Изображения и другие ассеты
+│   ├── components/     # React компоненты
+│   │   ├── features/   # Компоненты, специфичные для бизнес-логики (Charts, Forms, Header)
+│   │   └── ui/         # Переиспользуемые UI компоненты (Button, Input, Card и т.д.)
+│   ├── context/        # React Context (AuthContext)
+│   ├── lib/            # Утилиты (utils.ts)
+│   ├── mocks/          # Моковые данные
+│   ├── pages/          # Страницы приложения (Home, Employees, Documents, Login)
+│   ├── App.tsx         # Корневой компонент с роутингом
+│   └── main.tsx        # Точка входа
+├── index.html
+├── tailwind.config.js  # Конфигурация Tailwind
+├── tsconfig.json       # Конфигурация TypeScript
+└── vite.config.ts      # Конфигурация Vite
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## ✨ Основной функционал
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+1.  **Дашборд (Home):**
+    *   Визуализация финансовых показателей (Доходы, Расходы, Налоги, Зарплаты).
+    *   Графики динамики выручки и распределения расходов.
+    *   AI-чат для аналитики и вопросов по документам (RAG).
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+2.  **Управление сотрудниками (Employees):**
+    *   Список сотрудников с поиском и фильтрацией.
+    *   Добавление новых сотрудников.
+    *   Интеграция с базой знаний для AI (автоматическое добавление данных о сотрудниках в контекст).
+
+3.  **Документы и Отчеты (Documents):**
+    *   Загрузка финансовых документов (Excel, PDF, JSON).
+    *   Автоматический анализ содержимого через Google Gemini.
+    *   Классификация транзакций (Доход/Расход/Налог/Зарплата).
+
+4.  **Аутентификация:**
+    *   Регистрация и Вход.
+    *   JWT авторизация.
+    *   Разделение данных по пользователям (Multi-tenancy).
+
+5.  **UI/UX:**
+    *   Адаптивный дизайн.
+    *   Переключение тем (Светлая/Темная).
+
+## 🔧 Конфигурация
+
+API URL по умолчанию настроен на `http://localhost:3000`.
+Для изменения адреса бэкенда отредактируйте константу `API_URL` в файлах директории `src/api/`.
+
